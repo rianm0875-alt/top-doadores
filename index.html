@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top Doadores • Live Ranking</title>
+<style>
+:root{
+ --bg:#050712;--panel:#0b1020;--panel2:#0e1427;--line:#202a42;
+ --text:#e8edf7;--muted:#9ba6ba;--pink:#ff00a8;--cyan:#27e7ff;
+ --yellow:#ffb300;
+}
+*{box-sizing:border-box} body{margin:0;background:radial-gradient(circle at 18% 25%,#10142b 0,transparent 23%),radial-gradient(circle at 78% 55%,#16072b 0,transparent 20%),var(--bg);color:var(--text);font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+header{height:76px;border-bottom:1px solid #252b38;background:#12151c;display:flex;align-items:center;justify-content:space-between;padding:0 28px}
+.brand{font-size:21px;font-weight:900;letter-spacing:.4px}.brand span{color:var(--cyan)}
+.status{display:flex;gap:14px;align-items:center;color:#b9c3d4;font-size:13px}
+.dot{width:10px;height:10px;border-radius:50%;background:#23d99b;box-shadow:0 0 14px #23d99b}
+main{max-width:980px;margin:auto;padding:18px;display:flex;flex-direction:column;gap:24px}
+.card{background:linear-gradient(145deg,rgba(10,15,31,.96),rgba(7,10,22,.96));border:1px solid #1d2942;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.board{padding:34px 24px;min-height:780px;position:relative;overflow:hidden;width:100%}
+.board:before{content:"";position:absolute;left:50%;top:0;width:1px;height:100%;background:linear-gradient(transparent,#15213a,transparent)}
+.logo{width:min(430px,90%);margin:0 auto 130px;border:2px solid var(--pink);border-radius:12px;padding:10px;text-align:center;box-shadow:0 0 22px rgba(255,0,168,.4), inset 0 0 18px rgba(255,0,168,.08);position:relative}
+.logo:after{content:"";position:absolute;right:-2px;bottom:-2px;width:12px;height:12px;border-right:2px solid var(--cyan);border-bottom:2px solid var(--cyan)}
+.live{font-size:13px;letter-spacing:5px;color:var(--cyan);font-weight:800;margin-bottom:5px}.title{font-size:29px;font-weight:1000;letter-spacing:1px}
+.ranking{max-width:560px;margin:auto;display:flex;flex-direction:column;gap:14px}
+.row{display:grid;grid-template-columns:48px 58px 1fr;align-items:center;gap:12px}
+.place{font-size:30px;font-style:italic;font-weight:1000;text-align:center;color:var(--muted);text-shadow:0 0 12px currentColor}
+.avatar{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#151c2c;border:2px solid var(--line)}
+.donor{height:54px;border-radius:0 14px 14px 0;background:linear-gradient(90deg,#12182a,#0c1020);border:1px solid #1c2740;border-left:5px solid var(--accent,#65708a);display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-weight:800;gap:10px}
+.amount{color:var(--accent,#fff);white-space:nowrap}
+.footerboard{position:absolute;bottom:20px;left:26px;right:26px;border-top:1px solid #202a3c;padding-top:15px;display:flex;justify-content:space-between;color:#6dbfd0;font-size:12px;letter-spacing:2px;font-weight:800}
+.footerboard b:last-child{color:#ed65b7}
+.editor{padding:24px;width:100%;max-height:none;overflow:visible}
+h2{margin:0 0 18px;font-size:23px;letter-spacing:.5px}.section-title{font-size:12px;color:#9ca8bd;font-weight:900;letter-spacing:1px;margin:18px 0 7px}
+input,button{font:inherit}input{width:100%;background:#090d19;border:1px solid #27334d;color:#eaf0fa;border-radius:10px;padding:12px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.formrow{border:1px solid #22304a;background:#0c1221;border-radius:15px;padding:13px;margin:12px 0}
+.formhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font-weight:900}
+.position{color:var(--accent)}
+.upload{display:flex;align-items:center;gap:8px;color:#9ca8bd;font-size:12px;margin-top:9px}
+.upload input{padding:7px}
+.actions{display:flex;gap:10px;margin-top:18px}.btn{border:0;border-radius:10px;padding:13px 17px;font-weight:900;cursor:pointer}
+.save{background:linear-gradient(90deg,var(--pink),#ff4cbd);color:white}.reset{background:#1a2234;color:#c6cfdf}
+.note{font-size:12px;color:#7f8aa0;margin-top:10px;line-height:1.45}
+@media(max-width:900px){.board{min-height:650px}.logo{margin-bottom:70px}}
+@media(max-width:520px){header{padding:0 15px}.title{font-size:22px}.donor{padding:0 10px;font-size:13px}.row{grid-template-columns:38px 50px 1fr;gap:7px}.avatar{width:50px;height:50px}.grid2{grid-template-columns:1fr}.board{padding:25px 12px}.editor{padding:18px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span>✦</span> TOP-DOADORES</div>
+  <div class="status"><i class="dot"></i> PRONTO PARA ATUALIZAR</div>
+</header>
+
+<main>
+<section class="card board">
+  <div class="logo"><div class="live">LIVE RANKING</div><div class="title" id="boardTitle">TOP DOADORES</div></div>
+  <div class="ranking" id="ranking"></div>
+  <div class="footerboard"><b>● STREAM ATIVA</b><b>DONOR BOARD</b></div>
+</section>
+
+<section class="card editor">
+  <h2>⚙ CONFIGURAÇÕES DO LIVE BOARD</h2>
+  <div class="section-title">TÍTULO DO RANKING</div>
+  <input id="titleInput" value="TOP DOADORES" maxlength="40">
+  <div class="section-title">UNIDADE / SÍMBOLO</div>
+  <input id="unitInput" value="Moedas" maxlength="20">
+  <div id="forms"></div>
+  <div class="actions">
+    <button class="btn save" onclick="saveAll()">💾 SALVAR E ATUALIZAR</button>
+    <button class="btn reset" onclick="resetAll()">↻ RESTAURAR EXEMPLO</button>
+  </div>
+  <div class="note">As alterações ficam salvas neste navegador. Depois de cada live, basta trocar nome, quantidade e foto e clicar em salvar.</div>
+</section>
+</main>
+
+<script>
+const colors=['#ffbf20','#c6cfdd','#ff8a00','#39d7f2','#dc64ff','#9ca8bd','#43d68b','#ff4d86','#4b8dff','#ffcc4d'];
+const sample=[
+ {name:'Prih dontas 😜',amount:5004,img:''},
+ {name:'018_notthanzin',amount:2655,img:''},
+ {name:'Rafael Belli',amount:2068,img:''},
+ {name:'eduardoneto',amount:2003,img:''},
+ {name:'ICEP4TTY 🦕',amount:1239,img:''},
+ {name:'Levi 🧍',amount:1119,img:''}
+];
+let donors=JSON.parse(localStorage.getItem('topDoadoresDonors')||'null')||sample;
+document.getElementById('titleInput').value=localStorage.getItem('topDoadoresTitle')||'TOP DOADORES';
+document.getElementById('unitInput').value=localStorage.getItem('topDoadoresUnit')||'Moedas';
+
+function fmt(n){return Number(n||0).toLocaleString('pt-BR')}
+function render(){
+ const unit=document.getElementById('unitInput').value||'Moedas';
+ document.getElementById('boardTitle').textContent=document.getElementById('titleInput').value||'TOP DOADORES';
+ document.getElementById('ranking').innerHTML=donors.map((d,i)=>`
+ <div class="row">
+   <div class="place" style="color:${colors[i]}">${i+1}</div>
+   ${d.img?`<img class="avatar" src="${d.img}" style="border-color:${colors[i]}">`:`<div class="avatar" style="border-color:${colors[i]};display:grid;place-items:center;font-size:21px">👤</div>`}
+   <div class="donor" style="--accent:${colors[i]}"><span>${escapeHtml(d.name||'Sem nome')}</span><span class="amount">${fmt(d.amount)} ${unit}</span></div>
+ </div>`).join('');
+}
+function forms(){
+ document.getElementById('forms').innerHTML=donors.map((d,i)=>`
+ <div class="formrow" style="--accent:${colors[i]}">
+   <div class="formhead"><span class="position">POSIÇÃO #${i+1}</span><button onclick="clearDonor(${i})" style="background:none;border:0;color:#9ca8bd;cursor:pointer">🗑 Limpar</button></div>
+   <div class="grid2">
+    <input placeholder="Nome do doador" value="${escapeAttr(d.name||'')}" oninput="donors[${i}].name=this.value">
+    <input type="number" placeholder="Quantidade" value="${d.amount||''}" oninput="donors[${i}].amount=this.value">
+   </div>
+   <div class="upload">📷 Foto de perfil <input type="file" accept="image/*" onchange="uploadPhoto(event,${i})"></div>
+ </div>`).join('');
+}
+function uploadPhoto(e,i){
+ const file=e.target.files[0]; if(!file)return;
+ const reader=new FileReader(); reader.onload=()=>{donors[i].img=reader.result; render();}; reader.readAsDataURL(file);
+}
+function clearDonor(i){donors[i]={name:'',amount:'',img:''};forms();render()}
+function saveAll(){
+ localStorage.setItem('topDoadoresDonors',JSON.stringify(donors));
+ localStorage.setItem('topDoadoresTitle',document.getElementById('titleInput').value);
+ localStorage.setItem('topDoadoresUnit',document.getElementById('unitInput').value);
+ render(); alert('Ranking salvo com sucesso!');
+}
+function resetAll(){if(confirm('Restaurar os dados de exemplo?')){donors=JSON.parse(JSON.stringify(sample));localStorage.clear();document.getElementById('titleInput').value='TOP DOADORES';document.getElementById('unitInput').value='Moedas';forms();render()}}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function escapeAttr(s){return escapeHtml(s)}
+document.getElementById('titleInput').addEventListener('input',render);
+document.getElementById('unitInput').addEventListener('input',render);
+forms();render();
+</script>
+</body>
+</html>
