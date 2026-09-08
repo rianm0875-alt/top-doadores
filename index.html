@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Top Doadores • Ranking Online</title>
+<style>
+:root{--bg:#050712;--text:#e8edf7;--muted:#9ba6ba;--pink:#ff00a8;--cyan:#27e7ff;--line:#202a42}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at 18% 25%,#10142b 0,transparent 23%),radial-gradient(circle at 78% 55%,#16072b 0,transparent 20%),var(--bg);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}
+header{height:76px;border-bottom:1px solid #252b38;background:#12151c;display:flex;align-items:center;justify-content:space-between;padding:0 28px}.brand{font-size:21px;font-weight:900}.brand span{color:var(--cyan)}.status{font-size:13px;color:#b9c3d4}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:#ffb300;margin-right:8px}
+main{max-width:980px;margin:auto;padding:18px;display:flex;flex-direction:column;gap:24px}.card{background:linear-gradient(145deg,#0a0f1f,#070a16);border:1px solid #1d2942;border-radius:24px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.board{padding:34px 24px;min-height:780px;position:relative}.logo{width:min(430px,90%);margin:0 auto 100px;border:2px solid var(--pink);border-radius:12px;padding:10px;text-align:center;box-shadow:0 0 22px rgba(255,0,168,.4)}.live{font-size:13px;letter-spacing:5px;color:var(--cyan);font-weight:800}.title{font-size:29px;font-weight:1000}
+.ranking{max-width:560px;margin:auto;display:flex;flex-direction:column;gap:14px}.row{display:grid;grid-template-columns:48px 58px 1fr;align-items:center;gap:12px}.place{font-size:30px;font-style:italic;font-weight:1000;text-align:center}.avatar{width:58px;height:58px;border-radius:50%;object-fit:cover;background:#151c2c;border:2px solid var(--line)}.donor{min-height:54px;border-radius:0 14px 14px 0;background:linear-gradient(90deg,#12182a,#0c1020);border:1px solid #1c2740;border-left:5px solid var(--accent);display:flex;align-items:center;justify-content:space-between;padding:10px 18px;font-weight:800;gap:10px}.amount{color:var(--accent);white-space:nowrap}
+.footerboard{position:absolute;bottom:20px;left:26px;right:26px;border-top:1px solid #202a3c;padding-top:15px;display:flex;justify-content:space-between;color:#6dbfd0;font-size:12px;letter-spacing:2px;font-weight:800}
+.editor{padding:24px}.cloud{padding:12px;border-radius:10px;background:#0b1523;border:1px solid #236e50;color:#8ff0bd;font-size:13px;margin-bottom:14px}.section-title{font-size:12px;color:#9ca8bd;font-weight:900;letter-spacing:1px;margin:18px 0 7px}
+input,button{font:inherit}input{width:100%;background:#090d19;border:1px solid #27334d;color:#eaf0fa;border-radius:10px;padding:12px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.formrow{border:1px solid #22304a;background:#0c1221;border-radius:15px;padding:13px;margin:12px 0}.formhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font-weight:900}.upload{font-size:12px;color:#9ca8bd;margin-top:9px}.upload input{padding:7px}.actions{display:flex;gap:10px;margin-top:18px}.btn{border:0;border-radius:10px;padding:13px 17px;font-weight:900;cursor:pointer}.save{background:linear-gradient(90deg,var(--pink),#ff4cbd);color:white}.reset{background:#1a2234;color:#c6cfdf}.note{font-size:12px;color:#7f8aa0;margin-top:10px;line-height:1.45}
+@media(max-width:520px){header{padding:0 15px}.grid2{grid-template-columns:1fr}.row{grid-template-columns:38px 50px 1fr;gap:7px}.avatar{width:50px;height:50px}.board{padding:25px 12px}}
+</style>
+</head>
+<body>
+<header><div class="brand"><span>✦</span> TOP-DOADORES</div><div class="status"><i class="dot" id="dot"></i><span id="statusText">CONECTANDO...</span></div></header>
+<main>
+<section class="card board">
+<div class="logo"><div class="live">LIVE RANKING</div><div class="title" id="boardTitle">TOP DOADORES</div></div>
+<div class="ranking" id="ranking"></div>
+<div class="footerboard"><b>● STREAM ATIVA</b><b>DONOR BOARD</b></div>
+</section>
+<section class="card editor">
+<h2>⚙ CONFIGURAÇÕES DO LIVE BOARD</h2>
+<div class="cloud" id="cloudMessage">☁️ Ranking online conectado ao Firebase.</div>
+<div class="section-title">TÍTULO DO RANKING</div><input id="titleInput" value="TOP DOADORES" maxlength="40">
+<div class="section-title">UNIDADE / SÍMBOLO</div><input id="unitInput" value="Moedas" maxlength="20">
+<div id="forms"></div>
+<div class="actions"><button class="btn save" onclick="saveAll()">☁️ SALVAR ONLINE</button><button class="btn reset" onclick="resetAll()">↻ RESTAURAR EXEMPLO</button></div>
+<div class="note">Depois de configurado no Firebase, basta trocar nome, moedas ou foto e clicar em SALVAR ONLINE. O ranking será atualizado para todos.</div>
+</section>
+</main>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+const firebaseConfig={
+ apiKey:"AIzaSyC05XkMdLjmZs5hSFP-DiV4Py5m55z-7dc",
+ authDomain:"top-doadores.firebaseapp.com",
+ projectId:"top-doadores",
+ storageBucket:"top-doadores.firebasestorage.app",
+ messagingSenderId:"1087644081125",
+ appId:"1:1087644081125:web:8d5e3fafc3cbc50c632d0c"
+};
+
+const colors=['#ffbf20','#c6cfdd','#ff8a00','#39d7f2','#dc64ff','#9ca8bd','#43d68b','#ff4d86','#4b8dff','#ffcc4d'];
+const sample=[
+{name:'Prih dontas 😜',amount:5004,img:''},{name:'018_notthanzin',amount:2655,img:''},
+{name:'Rafael Belli',amount:2068,img:''},{name:'eduardoneto',amount:2003,img:''},
+{name:'ICEP4TTY 🦕',amount:1239,img:''},{name:'Levi 🧍',amount:1119,img:''}
+];
+let donors=JSON.parse(JSON.stringify(sample));
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const rankingRef=doc(db,'topDoadores','ranking');
+
+function fmt(n){return Number(n||0).toLocaleString('pt-BR')}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]))}
+function render(){
+ const unit=document.getElementById('unitInput').value||'Moedas';
+ document.getElementById('boardTitle').textContent=document.getElementById('titleInput').value||'TOP DOADORES';
+ document.getElementById('ranking').innerHTML=donors.map((d,i)=>`<div class="row"><div class="place" style="color:${colors[i%colors.length]}">${i+1}</div>${d.img?`<img class="avatar" src="${d.img}" style="border-color:${colors[i%colors.length]}">`:`<div class="avatar" style="border-color:${colors[i%colors.length]};display:grid;place-items:center">👤</div>`}<div class="donor" style="--accent:${colors[i%colors.length]}"><span>${esc(d.name||'Sem nome')}</span><span class="amount">${fmt(d.amount)} ${unit}</span></div></div>`).join('');
+}
+function forms(){
+ document.getElementById('forms').innerHTML=donors.map((d,i)=>`<div class="formrow"><div class="formhead"><span style="color:${colors[i%colors.length]}">POSIÇÃO #${i+1}</span><button onclick="clearDonor(${i})" style="background:none;border:0;color:#9ca8bd;cursor:pointer">🗑 Limpar</button></div><div class="grid2"><input placeholder="Nome do doador" value="${esc(d.name||'')}" oninput="donors[${i}].name=this.value"><input type="number" placeholder="Quantidade" value="${d.amount||''}" oninput="donors[${i}].amount=this.value"></div><div class="upload">📷 Foto de perfil <input type="file" accept="image/*" onchange="uploadPhoto(event,${i})"></div></div>`).join('');
+}
+async function resize(file){
+ const img=new Image(),url=URL.createObjectURL(file);
+ await new Promise((ok,no)=>{img.onload=ok;img.onerror=no;img.src=url});
+ let w=img.width,h=img.height,max=260;
+ if(w>h&&w>max){h=Math.round(h*max/w);w=max}else if(h>max){w=Math.round(w*max/h);h=max}
+ const c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);URL.revokeObjectURL(url);
+ return c.toDataURL('image/jpeg',.78);
+}
+window.uploadPhoto=async(e,i)=>{const f=e.target.files[0];if(!f)return;donors[i].img=await resize(f);render();}
+window.clearDonor=(i)=>{donors[i]={name:'',amount:'',img:''};forms();render();}
+window.saveAll=async()=>{
+ try{
+  await setDoc(rankingRef,{title:document.getElementById('titleInput').value||'TOP DOADORES',unit:document.getElementById('unitInput').value||'Moedas',donors,updatedAt:new Date().toISOString()});
+  document.getElementById('cloudMessage').textContent='✅ Ranking salvo online! A atualização será vista por todos.';
+ }catch(e){console.error(e);alert('Erro ao salvar. Verifique as regras do Firestore.');}
+}
+window.resetAll=()=>{if(confirm('Restaurar exemplo?')){donors=JSON.parse(JSON.stringify(sample));document.getElementById('titleInput').value='TOP DOADORES';document.getElementById('unitInput').value='Moedas';forms();render();}}
+document.getElementById('titleInput').addEventListener('input',render);
+document.getElementById('unitInput').addEventListener('input',render);
+
+try{
+ const first=await getDoc(rankingRef);
+ if(!first.exists()) await setDoc(rankingRef,{title:'TOP DOADORES',unit:'Moedas',donors,updatedAt:new Date().toISOString()});
+ onSnapshot(rankingRef,s=>{
+  if(!s.exists())return;
+  const d=s.data();donors=Array.isArray(d.donors)?d.donors:donors;
+  document.getElementById('titleInput').value=d.title||'TOP DOADORES';
+  document.getElementById('unitInput').value=d.unit||'Moedas';
+  forms();render();
+  document.getElementById('statusText').textContent='ONLINE E SINCRONIZADO';
+  document.getElementById('dot').style.background='#23d99b';
+ },e=>{console.error(e);document.getElementById('statusText').textContent='ERRO DE CONEXÃO';});
+}catch(e){console.error(e);document.getElementById('statusText').textContent='ERRO DE CONEXÃO';}
+
+forms();render();
+</script>
+</body>
+</html>
